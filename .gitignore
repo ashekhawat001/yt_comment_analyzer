@@ -1,0 +1,9 @@
+.env
+*.json
+*.csv
+# ignore pycache
+__pycache__
+*/__pycache__
+*.pyc
+client_secret_*
+*.txt
