@@ -1,32 +1,36 @@
-# -*- coding: utf-8 -*-
-
-# Sample Python code for youtube.commentThreads.list
-# See instructions for running these code samples locally:
-# https://developers.google.com/explorer-help/code-samples#python
-
 import os
+from dotenv import load_dotenv
+from googleapiclient.discovery import build
 
-import googleapiclient.discovery
+load_dotenv()
 
-def main():
-    # Disable OAuthlib's HTTPS verification when running locally.
-    # *DO NOT* leave this option enabled in production.
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+YOUR_API_KEY= os.getenv("API_KEY")
 
-    api_service_name = "youtube"
-    api_version = "v3"
-    DEVELOPER_KEY = "YOUR_API_KEY"
+api_service_name = "youtube"
+api_version = "v3"
+DEVELOPER_KEY = YOUR_API_KEY
 
-    youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, developerKey = DEVELOPER_KEY)
+youtube = build(
+    api_service_name, api_version, developerKey = DEVELOPER_KEY)
+
+def comment_threads(vid, to_csv=False):
 
     request = youtube.commentThreads().list(
         part="id,snippet",
-        videoId="XTjtPc0uiG8"
+        videoId=vid
     )
     response = request.execute()
-
     print(response)
+
+
+
+
+def main():
+    comment_threads('XTjtPc0uiG8')
+ 
+   # os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+
 
 if __name__ == "__main__":
     main()
