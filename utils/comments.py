@@ -28,16 +28,21 @@ def process_comments(response_items, csv_output=False):
     print(f'Finished processing {len(comments)} comments.')
     return comments
 
+def make_csv(comments, videoId=None):
+    header = ['index', 'videoId', 'comment', 'likes']
 
-def make_csv(comments, vid=None):
-    header = comments[0].keys()
-
-    if vid:
-        filename = f'comments_{vid}_{today}.csv'
+    if videoId:
+        filename = f'comments_{videoId}_{today}.csv'
     else:
         filename = f'comments_{today}.csv'
 
     with open(filename, 'w', encoding='utf8', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=header, extrasaction='ignore')
         writer.writeheader()
-        writer.writerows(comments)
+        for i, comment in enumerate(comments, start=1):
+            writer.writerow({
+                'index': i,
+                'videoId': videoId,
+                'comment': comment['textOriginal'],
+                'likes': comment['likeCount']
+            })
