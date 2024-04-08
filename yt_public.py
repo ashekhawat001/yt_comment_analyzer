@@ -2,35 +2,49 @@ import os
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 
+
+from utils.comments import process_comments, make_csv
+
 load_dotenv()
+API_KEY = os.getenv("API_KEY")
 
-YOUR_API_KEY= os.getenv("API_KEY")
+youtube = build("youtube", "v3", developerKey=API_KEY)
 
-api_service_name = "youtube"
-api_version = "v3"
-DEVELOPER_KEY = YOUR_API_KEY
 
-youtube = build(
-    api_service_name, api_version, developerKey = DEVELOPER_KEY)
-
-def comment_threads(vid, to_csv=False):
-
+def comment_threads(videoID, to_csv=False):
+    
+    comments_list = []
+    
     request = youtube.commentThreads().list(
-        part="id,snippet",
-        videoId=vid
+        part='id,replies,snippet',
+        videoId=videoID,
     )
     response = request.execute()
-    print(response)
+    comments_list.extend(process_comments(response['items']))
+
+    # if there is nextPageToken, then keep calling the API
+    while response.get('nextPageToken', None):
+        request = youtube.commentThreads().list(
+            part='id,replies,snippet',
+            videoId=videoID,
+            pageToken=response['nextPageToken']
+        )
+        response = request.execute()
+        comments_list.extend(process_comments(response['items']))
+
+    
+
+    print(f"Finished fetching comments for {videoID}. {len(comments_list)} comments found.")
+    
+    if to_csv:
+        make_csv(comments_list, videoID)
+    
+    return comments_list
 
 
 
+if __name__ == '__main__':
 
-def main():
-    comment_threads('XTjtPc0uiG8')
- 
-   # os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+    response = comment_threads(videoID='Qo8dXyKXyME', to_csv=True)
 
-
-
-if __name__ == "__main__":
-    main()
+  
