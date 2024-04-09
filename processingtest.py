@@ -1,7 +1,7 @@
 # Working with Dataframes
 import numpy as np
 import pandas as pd
-
+import spacy
 # Data visualization
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -12,13 +12,13 @@ import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-from collections import Counter
 from nltk.stem import PorterStemmer
 from nltk.tokenize import RegexpTokenizer
 
 # Data Sciency Stuff
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
+nlp = spacy.load("en_core_web_sm")
 
 
 dtype_specification = {'Likes':'int',
@@ -43,7 +43,14 @@ def preprocess_text(comments):
     # Create empty list
     preprocessed_comments = []
     # Initiate Tokenizer
-    tokenizer = RegexpTokenizer(r'\w+')
+    doc = nlp(comments)
+    tokens = [token.text for token in doc]
+    pos_tags = [token.pos_ for token in doc]
+    for token in doc:
+        print(token.text, token.lemma_)
+
+    print("Tokens:", tokens)
+    print("Part-of-Speech Tags:", pos_tags)
     # Get word stems for better results
     stemmer = PorterStemmer()
     # Take out words that are too common
@@ -51,7 +58,7 @@ def preprocess_text(comments):
 
     for comment in comments:
         # Tokenize each comment and change all words to lowercase
-        tokens = tokenizer.tokenize(comment.lower())
+        #tokens = tokenizer.tokenize(comment.lower())
         # Filter words against too common words
         filtered_tokens = [stemmer.stem(word) for word in tokens if word not in stop_words]
         # Append to empty string
